@@ -142,6 +142,57 @@ function registry() {
       ],
     );
   };
+  const jointAssessed = async (numbers: number[], occurred: number) => {
+    const occurredAt = day(occurred);
+    for (const number of numbers) {
+      const deliveryId = `webhook-${number}`;
+      await recordDelivery(db, deliveryId, "pull_request");
+      sqlite.run(
+        `INSERT INTO slopbot_value_requests
+         (delivery_id,installation_id,repository_id,owner,repo,pull_request_number,received_at)
+         VALUES (?,1,123456789,'branch-change','toolkit',?,?)`,
+        [deliveryId, number, occurredAt],
+      );
+    }
+    const digest = (label: string) =>
+      createHash("sha256")
+        .update(`${label}:${numbers.join(",")}`)
+        .digest("hex");
+    const record = {
+      schemaVersion: "slop-work-unit-record:v1",
+      projectId: project.id,
+      sourceDigest: digest("source"),
+      sources: numbers.map((number) => ({
+        repository: registered,
+        repositoryNodeId: "R_example",
+        repositoryDatabaseId: 123456789,
+        pullRequestNodeId: `PR_${number}`,
+        pullRequestNumber: number,
+        headSha: "b".repeat(40),
+        mergeSha: "c".repeat(40),
+        occurredAt,
+        policySha: "a".repeat(40),
+        sourceDigest: digest(`source-${number}`),
+      })),
+      claims: [],
+      supersedes: [],
+      legacyPredecessors: [],
+      revisionReason: null,
+    };
+    sqlite.run(
+      `INSERT INTO slopbot_work_unit_journal
+       (record_digest,assessment_key,project_id,source_digest,record_json,recorded_at)
+       VALUES (?,?,?,?,?,?)`,
+      [
+        digest("record"),
+        digest("assessment"),
+        project.id,
+        record.sourceDigest,
+        JSON.stringify(record),
+        day(occurred + 0.1),
+      ],
+    );
+  };
   const env = {
     SLOPBOT_DB: db,
     SLOPBOT_APP_ID: "1",
@@ -169,7 +220,7 @@ function registry() {
          ORDER BY r.pull_request_number`,
       )
       .all();
-  return { sqlite, amend, assessed, scheduled, requeued, day };
+  return { sqlite, amend, assessed, jointAssessed, scheduled, requeued, day };
 }
 
 test("an owner branch change queues a value request for each assessed pull request in the scoring window", async () => {
@@ -236,6 +287,23 @@ test("a paused project waits and its requests are queued once it is active", asy
   await scheduled(0.6);
   expect(requeued().map((row) => row.delivery_id)).toEqual([
     "integration-branch:branch-change:2:123456789:5",
+  ]);
+});
+
+test("a joint work unit queues a request for each of its pull requests", async () => {
+  const { amend, jointAssessed, scheduled, requeued } = registry();
+  await jointAssessed([30, 31], -3);
+  amend(2, { branch: "vibestack" });
+  await scheduled();
+  expect(requeued()).toEqual([
+    {
+      delivery_id: "integration-branch:branch-change:2:123456789:30",
+      pull_request_number: 30,
+    },
+    {
+      delivery_id: "integration-branch:branch-change:2:123456789:31",
+      pull_request_number: 31,
+    },
   ]);
 });
 
