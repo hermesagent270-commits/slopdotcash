@@ -73,6 +73,7 @@ import {
   isScoreThirds,
   scoreThirdsToPoints,
 } from "./score-units";
+import { SCORE_WINDOW_DAYS } from "./score-window";
 import {
   allocatePullRequestReviewCredit,
   assertValueScoringPolicy,
@@ -177,7 +178,7 @@ export const PAYMENT_REVIEW_BASIS_OMITTED_REASON =
   "no-pre-policy-reviews" as const;
 // A 35-day collection window guarantees a complete prior UTC calendar month;
 // project reward views still exclude everything before their reward start.
-export const SCORE_WINDOW_DAYS = 35;
+export { SCORE_WINDOW_DAYS };
 export const VERIFICATION_WINDOW_DAYS = 35;
 const MATERIAL_TEST_ADDITIONS = 10;
 const MATERIAL_TEST_CHURN = 20;

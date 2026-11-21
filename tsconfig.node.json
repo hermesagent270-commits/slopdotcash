@@ -124,6 +124,7 @@
     "src/lib/rewards.ts",
     "src/lib/review-records.ts",
     "src/lib/score-records.ts",
+    "src/lib/score-window.ts",
     "src/lib/score-penalties.ts",
     "src/lib/penalty-guide.ts",
     "src/lib/scoring-policy.ts",
