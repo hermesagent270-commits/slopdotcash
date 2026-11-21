@@ -51,7 +51,11 @@ import {
   type ValueConsumerEnv,
 } from "./value-consumer";
 import { valueHistory } from "./value-journal";
-import { recordValueRequest } from "./value-requests";
+import {
+  recordValueRequest,
+  requeueBranchChangedValueSources,
+} from "./value-requests";
+import { subscriptionCutoff } from "./value-settings";
 import { workUnitHistory } from "./value-work-unit-journal";
 
 type Queue = {
@@ -616,6 +620,7 @@ export default {
       dispatchFeeChecks(env, env.SLOPBOT_QUEUE),
       processPendingPointsDisputes(env),
       consumePendingValueRequests(env),
+      requeueBranchChangedValueSources(env.SLOPBOT_DB, subscriptionCutoff(env)),
       ...(env.SLOP_NOTIFY
         ? [
             dispatchSpendAlert(env.SLOPBOT_DB, env.SLOP_NOTIFY),

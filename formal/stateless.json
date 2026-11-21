@@ -125,5 +125,6 @@
   "wrangler.toml": "Static Pages bindings, environment constants and isolated preview declarations. No executable transition; API composition and service release models describe consumers. This configuration is not evidence of hosted binding availability.",
   "scripts/quint-verification-step.mjs": "Pure exact-source selector for the independently reviewed owner delayed-input verification entry point. Returns fixed step/proof-kind metadata only after the complete pinned model hash matches; no own transition, storage, I/O or runtime behavior.",
   "scripts/formal-report.mjs": "Pure canonical argument/resource lookup and validation of caller-supplied immutable report data against caller-supplied current expectations. It performs no IO, stores no run state and does not execute or attest a model; the producer and workflow own execution and artifact IO.",
-  "workers/slopbot/value-reference-query.ts": "Pure classification of one fixed source-discovery query and its explicit public missing-item envelope; retains no state, performs no I/O and grants no source or payment credit."
+  "workers/slopbot/value-reference-query.ts": "Pure classification of one fixed source-discovery query and its explicit public missing-item envelope; retains no state, performs no I/O and grants no source or payment credit.",
+  "src/lib/score-window.ts": "Literal length of the 35-day scoring window; no state, I/O, time or transition. The leaderboard window and the value branch requeue bound are modeled at their callers (bot_value_branch_requeue)."
 }
