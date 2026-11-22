@@ -3,6 +3,7 @@
  */
 
 import { sha256Hex } from "../../src/lib/async-sha256.mjs";
+import { validIntegrationBranch } from "../../src/lib/project-schema.mjs";
 import {
   REGISTERED_REPOSITORIES,
   type TargetRepository,
@@ -101,7 +102,7 @@ function assertRecord(
         !sha(indirect.historicalHeadSha) ||
         !sha(indirect.integrationSha) ||
         !sha(indirect.acceptedTipSha) ||
-        indirect.branch !== repository.integrationBranch ||
+        !validIntegrationBranch(indirect.branch) ||
         !Number.isSafeInteger(indirect.observationRunId) ||
         indirect.observationRunId <= 0 ||
         !time(indirect.observedOnBranchAt) ||
