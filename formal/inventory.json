@@ -7031,7 +7031,7 @@
     },
     {
       "path": "src/lib/leaderboard.ts",
-      "sha256": "084e21b40da4a4c52f07e98e9e10343b364ac252ac474dbf3191f6104b40da01",
+      "sha256": "56aa679a137cd42e748bb9d97431b2bfb6f7552d4bd73728806066513dca699d",
       "models": [
         "formal/models/points/implementation_allocation.qnt",
         "formal/models/points/implementation_credit.qnt",
@@ -7044,16 +7044,16 @@
         "formal/models/ui/ui_snapshot_contract.qnt"
       ],
       "candidateLines": [
-        262, 263, 287, 293, 958, 1021, 1047, 1258, 1320, 1330, 1336, 1338, 1340,
-        1342, 1349, 1434, 1468, 1473, 1491, 1588, 2143, 2161, 2233, 2242, 2260,
-        2269, 2277, 2299, 2314, 2323, 2331, 2377, 2427, 2477, 2532, 2549, 2550,
-        2553, 2554, 2658, 2660, 2661, 2665, 2668, 2676, 2678, 2696, 3000, 3019,
-        3074, 3250, 3445, 3470, 3519, 3592, 3612, 3738, 3817, 4214, 4225, 4259,
-        4322, 4336, 4659, 4872, 5073, 5186, 5211, 5342, 5350, 5355, 5422, 5436,
-        6184, 6186, 6209, 6213, 6217, 6222, 6368, 6377, 6387, 6388, 6446, 6481,
-        6487, 6507, 6512, 6519, 6527, 6529, 6555, 6558, 6572, 6574, 6595, 6597,
-        6601, 6604, 6609, 6801, 6803, 7062, 7106, 7169, 7170, 7991, 7992, 7993,
-        7994, 8011, 8021, 8032, 8048, 8137, 8203, 8204, 8231, 8438
+        263, 264, 288, 294, 959, 1022, 1048, 1259, 1321, 1331, 1337, 1339, 1341,
+        1343, 1350, 1435, 1469, 1474, 1492, 1589, 2144, 2162, 2234, 2243, 2261,
+        2270, 2278, 2300, 2315, 2324, 2332, 2378, 2428, 2478, 2533, 2550, 2551,
+        2554, 2555, 2659, 2661, 2662, 2666, 2669, 2677, 2679, 2697, 3001, 3020,
+        3075, 3251, 3446, 3471, 3520, 3593, 3613, 3739, 3818, 4215, 4226, 4260,
+        4323, 4337, 4660, 4873, 5074, 5187, 5212, 5343, 5351, 5356, 5423, 5437,
+        6185, 6187, 6210, 6214, 6218, 6223, 6369, 6378, 6388, 6389, 6447, 6482,
+        6488, 6508, 6513, 6520, 6528, 6530, 6556, 6559, 6573, 6575, 6596, 6598,
+        6602, 6605, 6610, 6802, 6804, 7063, 7107, 7170, 7171, 7992, 7993, 7994,
+        7995, 8012, 8022, 8033, 8049, 8138, 8204, 8205, 8232, 8439
       ],
       "review": "mapped-abstraction"
     },
@@ -7708,6 +7708,14 @@
       "models": ["formal/models/points/implementation_allocation.qnt"],
       "candidateLines": [],
       "review": "mapped-abstraction"
+    },
+    {
+      "path": "src/lib/score-window.ts",
+      "sha256": "fd213f80c15894520133162b7556e0fb6833cc668bf3e675d48c0f1ad3e68b5a",
+      "models": [],
+      "candidateLines": [],
+      "review": "reviewed-no-independent-state",
+      "statelessReason": "Literal length of the 35-day scoring window; no state, I/O, time or transition. The leaderboard window and the value branch requeue bound are modeled at their callers (bot_value_branch_requeue)."
     },
     {
       "path": "src/lib/scoring-policy.ts",
@@ -9364,17 +9372,18 @@
     },
     {
       "path": "workers/slopbot/index.ts",
-      "sha256": "231b91644d47a7aefbd0f9b16b23da17c7a4c15ddf70c6d8828dd89189804597",
+      "sha256": "2e7c2c6ffa99ad2bdfeb2fdb9b5d2750af2b0e76fedaca204dfe0eee8a4a0977",
       "models": [
         "formal/models/slopbot/bot_installation_lifecycle.qnt",
         "formal/models/slopbot/bot_ready_label.qnt",
         "formal/models/slopbot/bot_submission_fee.qnt",
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
         "formal/models/slopbot/bot_webhook_delivery.qnt"
       ],
       "candidateLines": [
-        3, 258, 265, 266, 289, 295, 321, 350, 361, 400, 409, 421, 430, 435, 442,
-        452, 454, 464, 467, 470, 474, 561, 576, 595, 599, 626, 635, 718, 724,
-        734
+        3, 262, 269, 270, 293, 299, 325, 354, 365, 404, 413, 425, 434, 439, 446,
+        456, 458, 468, 471, 474, 478, 565, 580, 599, 603, 631, 640, 723, 729,
+        739
       ],
       "review": "mapped-abstraction"
     },
@@ -9689,6 +9698,7 @@
       "sha256": "e0a3362f33487050b165fcf70024fe3ea7b1f6ffd2860ef2d70887c1119ed634",
       "models": [
         "formal/models/slopbot/bot_value_attempt_recovery.qnt",
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
         "formal/models/slopbot/bot_value_freshness.qnt",
         "formal/models/slopbot/bot_value_pipeline.qnt",
         "formal/models/slopbot/bot_value_precall_authority.qnt"
@@ -9703,6 +9713,7 @@
       "path": "workers/slopbot/value-consumption.ts",
       "sha256": "c55d6452751b90444f55fc35c22767a19cc534e31d2714333390c3071cb3417d",
       "models": [
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
         "formal/models/slopbot/bot_value_budget.qnt",
         "formal/models/slopbot/bot_value_history.qnt"
       ],
@@ -9974,9 +9985,12 @@
     },
     {
       "path": "workers/slopbot/value-requests.ts",
-      "sha256": "f70ef5e2459232e165a964728025b293f2e42fae1cdba382c8b701348c499086",
-      "models": ["formal/models/slopbot/bot_webhook_delivery.qnt"],
-      "candidateLines": [29],
+      "sha256": "7ff5bef2f283dfe3d7ddc7d8bdcb87e6f07e30a538efffbedb091244d33736c2",
+      "models": [
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
+        "formal/models/slopbot/bot_webhook_delivery.qnt"
+      ],
+      "candidateLines": [30, 126, 147, 149, 171],
       "review": "mapped-abstraction"
     },
     {
@@ -10039,9 +10053,12 @@
     },
     {
       "path": "workers/slopbot/value-work-unit-consumption.ts",
-      "sha256": "07ce9be2ed87e3ca924f4fff39fff1bfcbc2ff2573ffb91baf622e857656e1ff",
-      "models": ["formal/models/slopbot/bot_value_history.qnt"],
-      "candidateLines": [209, 280, 283, 329, 346, 374, 375],
+      "sha256": "3712aabf21ec8a1a8dddfd0255cd27bfc9e41232638bce7e2d9cd4cf2d10fb59",
+      "models": [
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
+        "formal/models/slopbot/bot_value_history.qnt"
+      ],
+      "candidateLines": [210, 281, 284, 330, 347, 375, 376],
       "review": "mapped-abstraction"
     },
     {
@@ -17654,6 +17671,26 @@
         "pendingReceiptDoesNotChangeBeforeReplyTest",
         "retainedBetweenReadAndAdmissionIsRecheckedTest",
         "unknownHoldsNeverAuthorizeFourthCallTest"
+      ]
+    },
+    {
+      "path": "formal/models/slopbot/bot_value_branch_requeue.qnt",
+      "sha256": "38fc0f4fcb1cac458d85722709a36beb365e9c16e9c0a614848a84c98ab9b5bf",
+      "sources": [
+        "workers/slopbot/index.ts",
+        "workers/slopbot/value-consumer.ts",
+        "workers/slopbot/value-consumption.ts",
+        "workers/slopbot/value-requests.ts",
+        "workers/slopbot/value-work-unit-consumption.ts"
+      ],
+      "scenarios": [
+        "branchChangeQueuesAndConsumerRestoresCurrentTest",
+        "branchRestoredRecordStaysCurrentTest",
+        "formerBranchRecordReadsAsStaleTest",
+        "outsideWindowIsNotQueuedTest",
+        "pausedProjectWaitsUntilActiveTest",
+        "repeatedRunDoesNotQueueTwiceTest",
+        "unchangedBranchQueuesNothingTest"
       ]
     },
     {

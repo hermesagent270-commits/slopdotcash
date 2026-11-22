@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "meaning": "Declared lifecycle candidates. This intentionally incomplete syntactic census cannot find every implicit state, establish reachability, or prove source/model correspondence. Review the open work listed in formal/README.md as well.",
-  "inventorySha256": "7f31f213b76fee746db20c7b98a7aa665e67928a030ae221096811f5c8831030",
+  "inventorySha256": "2a1d58154d72ed55a5730bc95efac3b372262992fa73a033a612aa68a1f3cf4d",
   "states": [
     {
       "path": "backend/fee-conversions/handler.ts",
@@ -3792,7 +3792,7 @@
     },
     {
       "path": "src/lib/leaderboard.ts",
-      "line": 4872,
+      "line": 4873,
       "name": "state",
       "kind": "string-union",
       "values": ["APPROVED", "CHANGES_REQUESTED"],
@@ -4737,7 +4737,7 @@
     },
     {
       "path": "workers/slopbot/index.ts",
-      "line": 230,
+      "line": 234,
       "name": "INSTALLATION_STATES",
       "kind": "string-union",
       "values": ["active", "removed", "suspended"],
@@ -4745,9 +4745,10 @@
         "formal/models/slopbot/bot_installation_lifecycle.qnt",
         "formal/models/slopbot/bot_ready_label.qnt",
         "formal/models/slopbot/bot_submission_fee.qnt",
+        "formal/models/slopbot/bot_value_branch_requeue.qnt",
         "formal/models/slopbot/bot_webhook_delivery.qnt"
       ],
-      "lexicallyUnmentionedValues": ["active"],
+      "lexicallyUnmentionedValues": [],
       "review": "candidate-only"
     },
     {
