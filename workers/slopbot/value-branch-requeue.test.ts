@@ -14,6 +14,7 @@ import { consumeValueRequest, type ValueConsumerEnv } from "./value-consumer";
 import { readValueDecision } from "./value-consumption";
 import { collectValueEvidence } from "./value-evidence";
 import { recordValueRequest } from "./value-requests";
+import { readWorkUnitHistory } from "./value-work-unit-consumption";
 
 const registered = "branch-change/toolkit";
 const DAY = 24 * 60 * 60 * 1000;
@@ -142,6 +143,41 @@ function registry() {
       ],
     );
   };
+  const reassessed = (number: number, occurred: number, recorded: number) => {
+    const digest = (label: string) =>
+      createHash("sha256").update(`${label}:${number}`).digest("hex");
+    const record = {
+      schemaVersion: "slop-value-record:v1",
+      projectId: project.id,
+      repository: registered,
+      repositoryNodeId: "R_example",
+      repositoryDatabaseId: 123456789,
+      pullRequestNodeId: `PR_${number}`,
+      pullRequestNumber: number,
+      headSha: "b".repeat(40),
+      mergeSha: "c".repeat(40),
+      occurredAt: day(occurred),
+      sourceDigest: digest("successor-source"),
+      supersedes: digest("record"),
+      revisionReason: "integration branch changed",
+    };
+    sqlite.run(
+      `INSERT INTO slopbot_value_journal
+       (record_digest,assessment_key,repository_node_id,pull_request_node_id,head_sha,source_digest,supersedes,record_json,recorded_at)
+       VALUES (?,?,?,?,?,?,?,?,?)`,
+      [
+        digest("successor"),
+        digest("successor-assessment"),
+        "R_example",
+        `PR_${number}`,
+        record.headSha,
+        record.sourceDigest,
+        record.supersedes,
+        JSON.stringify(record),
+        day(recorded),
+      ],
+    );
+  };
   const jointAssessed = async (numbers: number[], occurred: number) => {
     const occurredAt = day(occurred);
     for (const number of numbers) {
@@ -220,7 +256,16 @@ function registry() {
          ORDER BY r.pull_request_number`,
       )
       .all();
-  return { sqlite, amend, assessed, jointAssessed, scheduled, requeued, day };
+  return {
+    sqlite,
+    amend,
+    assessed,
+    reassessed,
+    jointAssessed,
+    scheduled,
+    requeued,
+    day,
+  };
 }
 
 test("an owner branch change queues a value request for each assessed pull request in the scoring window", async () => {
@@ -266,6 +311,16 @@ test("records before the API start or assessed after the change stay unqueued, a
   await assessed(4, -2);
   await scheduled(36);
   expect(requeued().map((row) => row.pull_request_number)).toEqual([3]);
+});
+
+test("a record already replaced after the change is not queued again", async () => {
+  const { amend, assessed, reassessed, scheduled, requeued } = registry();
+  await assessed(6, -5);
+  await assessed(7, -4);
+  amend(2, { branch: "vibestack" });
+  reassessed(6, -5, -0.5);
+  await scheduled();
+  expect(requeued().map((row) => row.pull_request_number)).toEqual([7]);
 });
 
 test("an unchanged branch queues nothing", async () => {
@@ -615,4 +670,117 @@ test("the queued request replaces the stale record with a current successor unde
     server.stop(true);
     sqlite.close();
   }
+});
+
+test("a stored joint record observed on the former integration branch stays readable after the change", async () => {
+  const project = assertProjectDefinition(
+    applicationManifest("branch-change", registered, {
+      status: "active",
+      rewardAsset: {
+        network: "ethereum",
+        kind: "stablecoin",
+        ...REWARD_ASSET_NETWORKS.ethereum.stablecoin,
+        chainId: REWARD_ASSET_NETWORKS.ethereum.chainId,
+        cluster: null,
+        verifiedAt: "2026-10-01T00:00:00.000Z",
+      },
+    }),
+  );
+  const onBranch = (integrationBranch: string) =>
+    collectTargetRepositories([
+      {
+        ...project,
+        repositories: [
+          { ...project.repositories[0], integrationBranch },
+          ...project.repositories.slice(1),
+        ],
+      },
+    ]);
+  const former = project.repositories[0].integrationBranch;
+  const observedOnBranchAt = "2026-11-02T00:00:00.000Z";
+  const record = JSON.stringify({
+    schemaVersion: "slop-work-unit-record:v1",
+    projectId: project.id,
+    sourceDigest: "d".repeat(64),
+    producerRevision: "a".repeat(40),
+    assessedAt: "2026-11-03T00:00:00.000Z",
+    sources: [
+      {
+        repository: registered,
+        pullRequestNumber: 9,
+        repositoryNodeId: project.authority.repositoryNodeId,
+        repositoryDatabaseId: 123456789,
+        pullRequestNodeId: "PR_indirect",
+        headSha: "b".repeat(40),
+        mergeSha: null,
+        policySha: "a".repeat(40),
+        sourceDigest: "e".repeat(64),
+        occurredAt: observedOnBranchAt,
+        indirectAcceptance: {
+          historicalHeadSha: "b".repeat(40),
+          integrationSha: "c".repeat(40),
+          acceptedTipSha: "f".repeat(40),
+          branch: former,
+          observationRunId: 1,
+          observedOnBranchAt,
+        },
+      },
+    ],
+    claims: [],
+    units: [],
+    supersedes: [],
+    legacyPredecessors: [],
+    revisionReason: null,
+  });
+  const recordDigest = createHash("sha256").update(record).digest("hex");
+  const read = (repositories: ReturnType<typeof collectTargetRepositories>) =>
+    readWorkUnitHistory(
+      async () => ({
+        records: [
+          {
+            sequence: 1,
+            record_digest: recordDigest,
+            record_json: record,
+            recorded_at: "2026-11-03T00:00:00.000Z",
+          },
+        ],
+        throughSequence: 1,
+        totalRecords: 1,
+        nextAfter: null,
+      }),
+      {
+        repositoryNodeId: project.authority.repositoryNodeId,
+        pullRequestNodeId: "PR_indirect",
+      },
+      repositories,
+    );
+  expect((await read(onBranch(former))).current?.row.record_digest).toBe(
+    recordDigest,
+  );
+  expect((await read(onBranch("vibestack"))).current?.row.record_digest).toBe(
+    recordDigest,
+  );
+  const unnamed = record.replace(`"branch":"${former}"`, '"branch":""');
+  await expect(
+    readWorkUnitHistory(
+      async () => ({
+        records: [
+          {
+            sequence: 1,
+            record_digest: createHash("sha256").update(unnamed).digest("hex"),
+            record_json: unnamed,
+            recorded_at: "2026-11-03T00:00:00.000Z",
+          },
+        ],
+        throughSequence: 1,
+        totalRecords: 1,
+        nextAfter: null,
+      }),
+      {
+        repositoryNodeId: project.authority.repositoryNodeId,
+        pullRequestNodeId: "PR_indirect",
+      },
+      onBranch("vibestack"),
+    ),
+  ).rejects.toThrow("Joint indirect acceptance binding is invalid");
 });
